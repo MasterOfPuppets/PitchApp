@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PitchApp</string>
+
+    <!-- Transpositions -->
+    <string name="transposition_c">C - Concert</string>
+    <string name="transposition_b_flat">B Flat</string>
+    <string name="transposition_e_flat">E Flat</string>
+    <string name="transposition_f">F</string>
+
+    <!-- Main Screen -->
+    <string name="noise_gate_label">Microphone Sensitivity (Noise Gate)</string>
+    <string name="noise_gate_max">Low</string>
+    <string name="noise_gate_min">High</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Settings</string>
+
+    <string name="settings_calibration_label">Calibration (A4)</string>
+    <string name="settings_calibration_value">%.1f Hz</string>
+
+    <string name="settings_transposition_label">Transposition</string>
+
+    <string name="settings_noise_gate_midpoint_label">Microphone Sensitivity (Noise Gate)</string>
+    <string name="settings_noise_gate_midpoint_desc">Sets the midpoint (50%) of the sensitivity slider on the main screen.</string>
+
+    <string name="settings_yin_tolerance_label">Tuning Tolerance (YIN)</string>
+    <string name="settings_yin_tolerance_desc">Controls algorithm stability. Low values prevent false detections; high values are more permissive with noise.</string>
+
+    <string name="settings_needle_width_label">Visual Needle Width</string>
+
+    <string name="settings_tuning_sound_label">Tuning Sound Volume</string>
+    <string name="settings_tuning_sound_desc">Volume of the alert when the note locks. 0 = Off.</string>
+    <string name="settings_tuning_sound_value">%.0f %%</string>
+
+    <!-- General Actions -->
+    <string name="action_back">Back</string>
+    <string name="settings_factory_reset">Reset to factory settings</string>
+
+    <!-- Note Names (Sharps) -->
+    <string-array name="note_names_sharps">
+        <item>C</item>
+        <item>C♯</item>
+        <item>D</item>
+        <item>D♯</item>
+        <item>E</item>
+        <item>F</item>
+        <item>F♯</item>
+        <item>G</item>
+        <item>G♯</item>
+        <item>A</item>
+        <item>A♯</item>
+        <item>B</item>
+    </string-array>
+</resources>

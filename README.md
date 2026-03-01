@@ -32,3 +32,6 @@ The upcoming version will introduce:
 ## Requirements
 * Android 8.0 (API level 26) or higher.
 * Device with a physical microphone.
+
+
+_Build with **love** by MasterOfPuppets and Gemini_

@@ -25,3 +25,6 @@ google-services.json
 /lint/
 /lint-baseline.xml
 /test-results/
+
+app/release/
+*.apk
