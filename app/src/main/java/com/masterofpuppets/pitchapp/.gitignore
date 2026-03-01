@@ -1,0 +1,27 @@
+*.iml
+.gradle
+/local.properties
+/.idea/
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# NDK / C++ specific
+.cxx/
+app/.cxx/
+app/build/
+
+# Keystore files (muito importante não enviar chaves de publicação se existirem)
+*.jks
+*.keystore
+
+# Google Services (se vires a usar Firebase no futuro)
+google-services.json
+
+# Lint and testing reports
+/lint/
+/lint-baseline.xml
+/test-results/

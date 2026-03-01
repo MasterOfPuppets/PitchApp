@@ -1,0 +1,27 @@
+*.iml
+.gradle
+/local.properties
+/.idea/
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# NDK / C++ specific
+.cxx/
+app/.cxx/
+app/build/
+
+# Keystore files
+*.jks
+*.keystore
+
+# Google Services
+google-services.json
+
+# Lint and testing reports
+/lint/
+/lint-baseline.xml
+/test-results/

@@ -1,0 +1,54 @@
+<resources>
+    <string name="app_name">PitchApp</string>
+
+    <!-- Transpositions -->
+    <string name="transposition_c">Dó - Concerto</string>
+    <string name="transposition_b_flat">Si Bemol</string>
+    <string name="transposition_e_flat">Mi Bemol</string>
+    <string name="transposition_f">Fá</string>
+
+    <!-- Main Screen -->
+    <string name="noise_gate_label">Sensibilidade do Microfone (Noise Gate)</string>
+    <string name="noise_gate_max">Baixa</string>
+    <string name="noise_gate_min">Alta</string>
+
+    <!-- Settings Screen -->
+    <string name="settings_title">Configurações</string>
+
+    <string name="settings_calibration_label">Calibração (Lá4)</string>
+    <string name="settings_calibration_value">%.1f Hz</string>
+
+    <string name="settings_transposition_label">Transposição</string>
+
+    <string name="settings_noise_gate_midpoint_label">Sensibilidade do Microfone (Noise Gate)</string>
+    <string name="settings_noise_gate_midpoint_desc">Define o ponto central (50%) do controlo deslizante de sensibilidade no ecrã principal.</string>
+
+    <string name="settings_yin_tolerance_label">Tolerância de Afinação (YIN)</string>
+    <string name="settings_yin_tolerance_desc">Controla a estabilidade do algoritmo. Valores baixos evitam falsas deteções; valores altos são mais permissivos com o ruído.</string>
+
+    <string name="settings_needle_width_label">Espessura da Agulha Visual</string>
+
+    <string name="settings_tuning_sound_label">Volume do Som de Afinação</string>
+    <string name="settings_tuning_sound_desc">Volume do aviso quando a nota tranca. 0 = Desligado.</string>
+    <string name="settings_tuning_sound_value">%.0f %%</string>
+
+    <!-- General Actions -->
+    <string name="action_back">Voltar</string>
+    <string name="settings_factory_reset">Repor configurações de fábrica</string>
+
+    <!-- Note Names (Sharps) -->
+    <string-array name="note_names_sharps">
+        <item>Dó</item>
+        <item>Dó♯</item>
+        <item>Ré</item>
+        <item>Ré♯</item>
+        <item>Mi</item>
+        <item>Fá</item>
+        <item>Fá♯</item>
+        <item>Sol</item>
+        <item>Sol♯</item>
+        <item>Lá</item>
+        <item>Lá♯</item>
+        <item>Si</item>
+    </string-array>
+</resources>
