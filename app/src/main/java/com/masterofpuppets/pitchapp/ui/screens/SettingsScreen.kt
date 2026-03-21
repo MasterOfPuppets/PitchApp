@@ -57,12 +57,6 @@ fun SettingsScreen(
 
     val scrollState = rememberScrollState()
 
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.resetNoiseGateSliderToMidpoint()
-        }
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()

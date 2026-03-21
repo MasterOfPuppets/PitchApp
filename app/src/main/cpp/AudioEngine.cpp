@@ -37,6 +37,7 @@ bool AudioEngine::start() {
             ->setSharingMode(oboe::SharingMode::Exclusive)
             ->setFormat(oboe::AudioFormat::Float)
             ->setChannelCount(oboe::ChannelCount::Mono)
+            ->setInputPreset(oboe::InputPreset::Unprocessed)
             ->setDataCallback(this);
 
     oboe::Result result = builder.openStream(mStream);
@@ -65,6 +66,7 @@ void AudioEngine::stop() {
         mStream.reset();
     }
 }
+
 
 oboe::DataCallbackResult AudioEngine::onAudioReady(oboe::AudioStream *audioStream, void *audioData, int32_t numFrames) {
     auto *floatData = static_cast<float *>(audioData);

@@ -16,12 +16,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlin.math.abs
+import kotlin.math.log2
 
 /**
  * Represents the current state of the tuning UI.
  */
 data class TuningState(
-    val noteIndex: Int = -1, // There's no note to show
+    val noteIndex: Int = -1,
     val octave: Int = 0,
     val targetFrequency: Double = 0.0,
     val deviationInCents: Double = 0.0,
@@ -65,40 +66,82 @@ class MainViewModel(private val settingsRepository: SettingsRepository) : ViewMo
 
     private var lockJob: Job? = null
 
+    // --- Stabilization logic ---
     private val pitchHistorySize = 5
     private val pitchHistory = mutableListOf<Double>()
 
-    /**
-     * Updates the UI state by applying a median filter to raw pitch data.
-     */
+    private var lastValidPitchTime: Long = 0L
+    private val HOLD_DURATION_MS = 500L
+
+    private var currentSmoothedFrequency: Double = -1.0
+    private val EMA_ALPHA = 0.3
+
     fun updatePitchResult(pitchResult: PitchResult, rawFrequency: Double) {
+        val currentTime = System.currentTimeMillis()
 
         if (rawFrequency <= 0.0) {
-            pitchHistory.clear()
-            publishFilteredState(pitchResult, rawFrequency)
+            if (currentTime - lastValidPitchTime > HOLD_DURATION_MS) {
+                pitchHistory.clear()
+                currentSmoothedFrequency = -1.0
+                publishFilteredState(PitchResult(-1, 0, 0.0, 0.0), 0.0)
+            }
             return
         }
 
-        pitchHistory.add(rawFrequency)
+        lastValidPitchTime = currentTime
 
+        // Median Filter
+        pitchHistory.add(rawFrequency)
         if (pitchHistory.size > pitchHistorySize) {
             pitchHistory.removeAt(0)
         }
 
         if (pitchHistory.size < pitchHistorySize) {
-            publishFilteredState(pitchResult, rawFrequency)
+            applySmoothingAndPublish(rawFrequency)
             return
         }
 
         val sortedHistory = pitchHistory.sorted()
         val medianFrequency = sortedHistory[pitchHistorySize / 2]
+
+        // Ignore octave jumps (decaying strings)
+        if (currentSmoothedFrequency > 0.0) {
+            val ratio = medianFrequency / currentSmoothedFrequency
+            val isOctaveUp = ratio in 1.85..2.15
+            val isOctaveDown = ratio in 0.45..0.55
+
+            if (isOctaveUp || isOctaveDown) {
+                applySmoothingAndPublish(currentSmoothedFrequency)
+                return
+            }
+        }
+
+        applySmoothingAndPublish(medianFrequency)
+    }
+
+    private fun applySmoothingAndPublish(targetFrequency: Double) {
+        if (currentSmoothedFrequency <= 0.0) {
+            currentSmoothedFrequency = targetFrequency
+        } else {
+            // Adaptive Inertia
+            val centsDiff = abs(1200.0 * log2(targetFrequency / currentSmoothedFrequency))
+
+            if (centsDiff > 150.0) {
+                // snap
+                currentSmoothedFrequency = targetFrequency
+            } else {
+                // smooth needle movement
+                currentSmoothedFrequency = (EMA_ALPHA * targetFrequency) + ((1.0 - EMA_ALPHA) * currentSmoothedFrequency)
+            }
+        }
+
         val smoothedPitchResult = PitchConverter.convertFrequencyToPitch(
-            frequencyHz = medianFrequency,
+            frequencyHz = currentSmoothedFrequency,
             referenceA4 = referenceA4.value.toDouble(),
             transposition = transposition.value
         )
 
-        publishFilteredState(smoothedPitchResult, medianFrequency)
+        publishFilteredState(smoothedPitchResult, currentSmoothedFrequency)
     }
 
     private fun publishFilteredState(pitchResult: PitchResult, frequency: Double) {
@@ -116,7 +159,7 @@ class MainViewModel(private val settingsRepository: SettingsRepository) : ViewMo
             if (lockJob == null || lockJob?.isActive == false) {
                 if (!_isPitchLocked.value) {
                     lockJob = viewModelScope.launch {
-                        delay(500) // detection of pitch lock duration. TODO: make it configurable
+                        delay(500)
                         _isPitchLocked.value = true
                     }
                 }
