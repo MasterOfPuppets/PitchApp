@@ -1,41 +1,53 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">PitchApp</string>
 
     <!-- Transpositions -->
     <string name="transposition_c">C - Concert</string>
-    <string name="transposition_b_flat">B Flat</string>
-    <string name="transposition_e_flat">E Flat</string>
+    <string name="transposition_b_flat">Bb</string>
+    <string name="transposition_e_flat">Eb</string>
     <string name="transposition_f">F</string>
 
     <!-- Main Screen -->
     <string name="noise_gate_label">Microphone Sensitivity (Noise Gate)</string>
-    <string name="noise_gate_max">Low</string>
-    <string name="noise_gate_min">High</string>
+    <string name="noise_gate_max">High</string>
+    <string name="noise_gate_min">Low</string>
 
     <!-- Settings Screen -->
     <string name="settings_title">Settings</string>
 
-    <string name="settings_calibration_label">Calibration (A4)</string>
+    <string name="settings_calibration_label">A4 Calibration</string>
     <string name="settings_calibration_value">%.1f Hz</string>
 
     <string name="settings_transposition_label">Transposition</string>
 
     <string name="settings_noise_gate_midpoint_label">Microphone Sensitivity (Noise Gate)</string>
-    <string name="settings_noise_gate_midpoint_desc">Sets the midpoint (50%) of the sensitivity slider on the main screen.</string>
+    <string name="settings_noise_gate_midpoint_desc">Sets the midpoint (50%%) of the sensitivity slider on the main screen.</string>
 
-    <string name="settings_yin_tolerance_label">Tuning Tolerance (YIN)</string>
-    <string name="settings_yin_tolerance_desc">Controls algorithm stability. Low values prevent false detections; high values are more permissive with noise.</string>
+    <string name="settings_yin_tolerance_label">YIN Tuning Tolerance</string>
+    <string name="settings_yin_tolerance_desc">Controls algorithm stability. Lower values prevent false detections; higher values are more forgiving with noise.</string>
 
     <string name="settings_needle_width_label">Visual Needle Width</string>
 
     <string name="settings_tuning_sound_label">Tuning Sound Volume</string>
-    <string name="settings_tuning_sound_desc">Volume of the alert when the note locks. 0 = Off.</string>
+    <string name="settings_tuning_sound_desc">Volume of the beep when the note locks. 0 = Off.</string>
     <string name="settings_tuning_sound_value">%.0f %%</string>
+
+    <string name="settings_factory_reset">Reset to factory defaults</string>
 
     <!-- General Actions -->
     <string name="action_back">Back</string>
-    <string name="settings_factory_reset">Reset to factory settings</string>
+
+    <!-- About Screen -->
+    <string name="about_title">About PitchApp</string>
+    <string name="about_motivation_text">A tribute to the legendary PitchLab Lite. For years, PitchLab was the go-to tuning app for musicians, loved for its strobe visuals and unparalleled accuracy. Unfortunately, it lost support and became incompatible with modern Android devices.\n\nPitchApp was born to fill that void. Our main goal is to provide a highly functional, simple, and accurate instrument tuner that is, above all, completely free of ads and distractions.</string>
+    <string name="about_credits">Developed with ❤️ by MasterOfPuppets and Gemini</string>
+    <string name="about_github_link">GitHub: PitchApp</string>
+
+    <string name="about_checking_updates">Checking for updates...</string>
+    <string name="about_up_to_date">The latest version (%s) is already installed.</string>
+    <string name="about_current_version">Current version: %s</string>
+    <string name="about_new_version_available">New version available: %s</string>
+    <string name="about_download_update">Download Update</string>
 
     <!-- Note Names (Sharps) -->
     <string-array name="note_names_sharps">

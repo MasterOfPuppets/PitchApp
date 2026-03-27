@@ -7,14 +7,19 @@ import com.masterofpuppets.pitchapp.data.local.SettingsRepository
 import com.masterofpuppets.pitchapp.model.Transposition
 import com.masterofpuppets.pitchapp.utils.PitchConverter
 import com.masterofpuppets.pitchapp.utils.PitchResult
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
 import kotlin.math.abs
 import kotlin.math.log2
 
@@ -28,6 +33,17 @@ data class TuningState(
     val deviationInCents: Double = 0.0,
     val currentFrequency: Double = 0.0
 )
+
+/**
+ * States for the GitHub API update check.
+ */
+sealed class UpdateState {
+    object Idle : UpdateState()
+    object Checking : UpdateState()
+    data class UpToDate(val version: String) : UpdateState()
+    data class UpdateAvailable(val currentVersion: String, val latestVersion: String, val releaseUrl: String) : UpdateState()
+    object Error : UpdateState()
+}
 
 /**
  * ViewModel to manage the tuning data and expose it to Jetpack Compose.
@@ -46,27 +62,32 @@ class MainViewModel(private val settingsRepository: SettingsRepository) : ViewMo
     private val _isPitchLocked = MutableStateFlow(false)
     val isPitchLocked: StateFlow<Boolean> = _isPitchLocked.asStateFlow()
 
+    // --- Settings Flows exposed to UI ---
+
     val referenceA4: StateFlow<Float> = settingsRepository.referenceA4Flow
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 440.0f)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, 440.0f)
 
     val transposition: StateFlow<Transposition> = settingsRepository.transpositionFlow
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Transposition.C)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, Transposition.C)
 
     val noiseGateMidpoint: StateFlow<Float> = settingsRepository.noiseGateMidpointFlow
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.005f)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, 0.005f)
 
     val yinTolerance: StateFlow<Float> = settingsRepository.yinToleranceFlow
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.15f)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, 0.15f)
 
     val needleBaseWidth: StateFlow<Float> = settingsRepository.needleBaseWidthFlow
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 36f)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, 36f)
 
     val tuningSoundVolume: StateFlow<Float> = settingsRepository.tuningSoundVolumeFlow
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1.0f)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, 1.0f)
+
+    // --- Update Check State ---
+    private val _updateState = MutableStateFlow<UpdateState>(UpdateState.Idle)
+    val updateState: StateFlow<UpdateState> = _updateState.asStateFlow()
 
     private var lockJob: Job? = null
 
-    // --- Stabilization logic ---
     private val pitchHistorySize = 5
     private val pitchHistory = mutableListOf<Double>()
 
@@ -74,7 +95,13 @@ class MainViewModel(private val settingsRepository: SettingsRepository) : ViewMo
     private val HOLD_DURATION_MS = 500L
 
     private var currentSmoothedFrequency: Double = -1.0
-    private val EMA_ALPHA = 0.3
+    private val EMA_ALPHA = 0.3 // Smoothing factor
+
+    init {
+        viewModelScope.launch {
+            _noiseGateThreshold.value = settingsRepository.noiseGateMidpointFlow.first()
+        }
+    }
 
     fun updatePitchResult(pitchResult: PitchResult, rawFrequency: Double) {
         val currentTime = System.currentTimeMillis()
@@ -104,7 +131,7 @@ class MainViewModel(private val settingsRepository: SettingsRepository) : ViewMo
         val sortedHistory = pitchHistory.sorted()
         val medianFrequency = sortedHistory[pitchHistorySize / 2]
 
-        // Ignore octave jumps (decaying strings)
+        // HARMONIC REJECTION: Ignore octave jumps (decaying strings)
         if (currentSmoothedFrequency > 0.0) {
             val ratio = medianFrequency / currentSmoothedFrequency
             val isOctaveUp = ratio in 1.85..2.15
@@ -123,14 +150,12 @@ class MainViewModel(private val settingsRepository: SettingsRepository) : ViewMo
         if (currentSmoothedFrequency <= 0.0) {
             currentSmoothedFrequency = targetFrequency
         } else {
-            // Adaptive Inertia
+            // SNAP & SMOOTH: Adaptive Inertia
             val centsDiff = abs(1200.0 * log2(targetFrequency / currentSmoothedFrequency))
 
             if (centsDiff > 150.0) {
-                // snap
                 currentSmoothedFrequency = targetFrequency
             } else {
-                // smooth needle movement
                 currentSmoothedFrequency = (EMA_ALPHA * targetFrequency) + ((1.0 - EMA_ALPHA) * currentSmoothedFrequency)
             }
         }
@@ -213,6 +238,53 @@ class MainViewModel(private val settingsRepository: SettingsRepository) : ViewMo
 
     fun resetNoiseGateSliderToMidpoint() {
         _noiseGateThreshold.value = noiseGateMidpoint.value
+    }
+
+    fun resetUpdateState() {
+        _updateState.value = UpdateState.Idle
+    }
+
+    fun checkForUpdates(currentVersion: String) {
+        if (_updateState.value is UpdateState.Checking) return
+        _updateState.value = UpdateState.Checking
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val url = URL("https://api.github.com/repos/MasterOfPuppets/PitchApp/releases/latest")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "GET"
+                connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
+                connection.connectTimeout = 5000
+                connection.readTimeout = 5000
+
+                if (connection.responseCode == 200) {
+                    val inputStream = connection.inputStream
+                    val response = inputStream.bufferedReader().use { it.readText() }
+                    val jsonObject = JSONObject(response)
+
+                    val latestVersionTag = jsonObject.getString("tag_name")
+                    val releaseUrl = jsonObject.getString("html_url")
+
+                    val cleanLatest = latestVersionTag.removePrefix("v")
+                    val cleanCurrent = currentVersion.removePrefix("v")
+
+                    if (cleanLatest != cleanCurrent) {
+                        _updateState.value = UpdateState.UpdateAvailable(
+                            currentVersion = cleanCurrent,
+                            latestVersion = cleanLatest,
+                            releaseUrl = releaseUrl
+                        )
+                    } else {
+                        _updateState.value = UpdateState.UpToDate(cleanCurrent)
+                    }
+                } else {
+                    _updateState.value = UpdateState.Error
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _updateState.value = UpdateState.Error
+            }
+        }
     }
 }
 

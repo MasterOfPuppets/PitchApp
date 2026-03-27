@@ -24,6 +24,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.masterofpuppets.pitchapp.audio.AudioEngine
 import com.masterofpuppets.pitchapp.data.local.SettingsRepository
+import com.masterofpuppets.pitchapp.ui.screens.AboutScreen
 import com.masterofpuppets.pitchapp.ui.screens.SettingsScreen
 import com.masterofpuppets.pitchapp.ui.screens.TunerScreen
 import com.masterofpuppets.pitchapp.utils.PitchConverter
@@ -43,6 +44,11 @@ class MainActivity : ComponentActivity(), AudioEngine.PitchListener {
     private lateinit var soundPool: SoundPool
     private var tunedSoundId: Int = 0
     private var isSoundLoaded = false
+
+    private var lastBeepTime: Long = 0L
+    private var lastBeepedNoteIndex: Int = -1
+    private val BEEP_COOLDOWN_MS = 5000L
+
     private lateinit var audioManager: AudioManager
     private var audioFocusRequest: AudioFocusRequest? = null
     private var hasAudioFocus = false
@@ -102,8 +108,16 @@ class MainActivity : ComponentActivity(), AudioEngine.PitchListener {
         lifecycleScope.launch {
             viewModel.isPitchLocked.collect { isLocked ->
                 val volume = viewModel.tuningSoundVolume.value
+
                 if (isLocked && isSoundLoaded && volume > 0f) {
-                    soundPool.play(tunedSoundId, volume, volume, 1, 0, 1f)
+                    val currentNoteIndex = viewModel.tuningState.value.noteIndex
+                    val currentTime = System.currentTimeMillis()
+
+                    if (currentNoteIndex != lastBeepedNoteIndex || (currentTime - lastBeepTime > BEEP_COOLDOWN_MS)) {
+                        soundPool.play(tunedSoundId, volume, volume, 1, 0, 1f)
+                        lastBeepTime = currentTime
+                        lastBeepedNoteIndex = currentNoteIndex
+                    }
                 }
             }
         }
@@ -115,11 +129,18 @@ class MainActivity : ComponentActivity(), AudioEngine.PitchListener {
                 composable("tuner") {
                     TunerScreen(
                         viewModel = viewModel,
-                        onNavigateToSettings = { navController.navigate("settings") }
+                        onNavigateToSettings = { navController.navigate("settings") },
+                        onNavigateToAbout = { navController.navigate("about") }
                     )
                 }
                 composable("settings") {
                     SettingsScreen(
+                        viewModel = viewModel,
+                        onNavigateBack = { navController.popBackStack() }
+                    )
+                }
+                composable("about") {
+                    AboutScreen(
                         viewModel = viewModel,
                         onNavigateBack = { navController.popBackStack() }
                     )

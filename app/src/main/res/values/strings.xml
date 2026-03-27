@@ -9,8 +9,8 @@
 
     <!-- Main Screen -->
     <string name="noise_gate_label">Sensibilidade do Microfone (Noise Gate)</string>
-    <string name="noise_gate_max">Baixa</string>
-    <string name="noise_gate_min">Alta</string>
+    <string name="noise_gate_max">Alta</string>
+    <string name="noise_gate_min">Baixa</string>
 
     <!-- Settings Screen -->
     <string name="settings_title">Configurações</string>
@@ -21,7 +21,7 @@
     <string name="settings_transposition_label">Transposição</string>
 
     <string name="settings_noise_gate_midpoint_label">Sensibilidade do Microfone (Noise Gate)</string>
-    <string name="settings_noise_gate_midpoint_desc">Define o ponto central (50%) do controlo deslizante de sensibilidade no ecrã principal.</string>
+    <string name="settings_noise_gate_midpoint_desc">Define o ponto central (50%%) do controlo deslizante de sensibilidade no ecrã principal.</string>
 
     <string name="settings_yin_tolerance_label">Tolerância de Afinação (YIN)</string>
     <string name="settings_yin_tolerance_desc">Controla a estabilidade do algoritmo. Valores baixos evitam falsas deteções; valores altos são mais permissivos com o ruído.</string>
@@ -32,9 +32,22 @@
     <string name="settings_tuning_sound_desc">Volume do aviso quando a nota tranca. 0 = Desligado.</string>
     <string name="settings_tuning_sound_value">%.0f %%</string>
 
+    <string name="settings_factory_reset">Repor configurações de fábrica</string>
+
     <!-- General Actions -->
     <string name="action_back">Voltar</string>
-    <string name="settings_factory_reset">Repor configurações de fábrica</string>
+
+    <!-- About Screen -->
+    <string name="about_title">Sobre o PitchApp</string>
+    <string name="about_motivation_text">Um tributo à lendária PitchLab Lite. Durante anos, a PitchLab foi a aplicação de afinação de eleição para músicos, adorada pelos seus visuais estroboscópicos e precisão inigualável. Infelizmente, perdeu suporte e tornou-se incompatível com os dispositivos Android modernos.\n\nO PitchApp nasceu para preencher esse vazio. O nosso principal objetivo é fornecer um afinador de instrumentos altamente funcional, simples e preciso que seja, acima de tudo, completamente livre de anúncios e distrações.</string>
+    <string name="about_credits">Desenvolvido com ❤️ por MasterOfPuppets e Gemini</string>
+    <string name="about_github_link">GitHub: PitchApp</string>
+
+    <string name="about_checking_updates">A verificar atualizações...</string>
+    <string name="about_up_to_date">A versão mais recente (%s) já está instalada.</string>
+    <string name="about_current_version">Versão atual: %s</string>
+    <string name="about_new_version_available">Nova versão disponível: %s</string>
+    <string name="about_download_update">Descarregar Atualização</string>
 
     <!-- Note Names (Sharps) -->
     <string-array name="note_names_sharps">

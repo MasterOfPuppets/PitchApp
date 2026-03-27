@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,23 +38,29 @@ import com.masterofpuppets.pitchapp.viewmodel.MainViewModel
 @Composable
 fun TunerScreen(
     viewModel: MainViewModel,
-    onNavigateToSettings: () -> Unit
+    onNavigateToSettings: () -> Unit,
+    onNavigateToAbout: () -> Unit
 ) {
     val tuningState by viewModel.tuningState.collectAsState()
     val noiseGateThreshold by viewModel.noiseGateThreshold.collectAsState()
     val waveformData by viewModel.waveformData.collectAsState()
     val isPitchLocked by viewModel.isPitchLocked.collectAsState()
+
     val needleWidth by viewModel.needleBaseWidth.collectAsState()
     val noiseGateMidpoint by viewModel.noiseGateMidpoint.collectAsState()
+
     val noteNamesArray = stringArrayResource(id = R.array.note_names_sharps)
     val displayNoteName = if (tuningState.noteIndex == -1) {
         "--"
     } else {
         noteNamesArray[tuningState.noteIndex]
     }
+
     val isPitchDetected = tuningState.noteIndex != -1
+
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
     val containerModifier = Modifier
         .fillMaxSize()
         .background(Color.Black)
@@ -127,15 +134,24 @@ fun TunerScreen(
             }
         }
 
-        IconButton(
-            onClick = onNavigateToSettings,
-            modifier = Modifier.align(Alignment.TopEnd)
+        Row(
+            modifier = Modifier.align(Alignment.TopEnd),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.Settings,
-                contentDescription = stringResource(id = R.string.settings_title),
-                tint = Color.LightGray
-            )
+            IconButton(onClick = onNavigateToAbout) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = stringResource(id = R.string.about_title),
+                    tint = Color.LightGray
+                )
+            }
+            IconButton(onClick = onNavigateToSettings) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = stringResource(id = R.string.settings_title),
+                    tint = Color.LightGray
+                )
+            }
         }
     }
 }

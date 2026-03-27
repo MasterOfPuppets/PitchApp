@@ -1,3 +1,11 @@
+fun getGitVersionName(): String {
+    return try {
+        val process = ProcessBuilder("git", "describe", "--tags", "--abbrev=0").start()
+        process.inputStream.bufferedReader().use { it.readText() }.trim().ifEmpty { "1.0.0" }
+    } catch (e: Exception) {
+        "1.0.0"
+    }
+}
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -13,7 +21,7 @@ android {
         minSdk = 26
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0"
+        versionName = getGitVersionName()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
@@ -53,6 +61,7 @@ android {
         viewBinding = true
         prefab = true
         compose = true
+        buildConfig = true
     }
 }
 

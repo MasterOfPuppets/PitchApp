@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Permissão para captar áudio -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <!-- Permissão de acesso à Internet para verificar atualizações no GitHub -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Requisito de hardware: A app exige um microfone físico para ser instalada -->
     <uses-feature android:name="android.hardware.microphone" android:required="true" />
 
     <application
